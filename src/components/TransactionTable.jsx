@@ -1,8 +1,6 @@
 import { Pencil, Trash2, Inbox } from "lucide-react";
 import { formatDate, formatRupiah } from "../utils/format";
 
-const RECENT_LIMIT = 10;
-
 function TypeBadge({ type }) {
   const styles =
     type === "income"
@@ -34,7 +32,7 @@ export default function TransactionTable({
   onEdit,
   onDelete,
 }) {
-  const recent = transactions.slice(0, RECENT_LIMIT);
+  const recent = transactions;
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">

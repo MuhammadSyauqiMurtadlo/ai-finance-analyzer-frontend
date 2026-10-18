@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Wallet } from "lucide-react";
+import { getDashboard } from "./api/dashboard";
 import {
   createTransaction,
   deleteTransaction,
-  getTransactions,
   updateTransaction,
 } from "./api/transactions";
+import CategoryDonutChart from "./components/CategoryDonutChart";
 import ConfirmDialog from "./components/ConfirmDialog";
+import IncomeExpenseChart from "./components/IncomeExpenseChart";
+import SummaryCards from "./components/SummaryCards";
 import TransactionModal from "./components/TransactionModal";
 import TransactionTable from "./components/TransactionTable";
 
 export default function App() {
-  const [transactions, setTransactions] = useState([]);
+  const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,10 +22,10 @@ export default function App() {
   const [toDelete, setToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const loadTransactions = useCallback(async () => {
+  const loadDashboard = useCallback(async () => {
     try {
       setError(null);
-      setTransactions(await getTransactions());
+      setDashboard(await getDashboard());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -31,8 +34,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    loadTransactions();
-  }, [loadTransactions]);
+    loadDashboard();
+  }, [loadDashboard]);
 
   const openAdd = () => setModal({ open: true, transaction: null });
   const openEdit = (transaction) => setModal({ open: true, transaction });
@@ -42,14 +45,13 @@ export default function App() {
   );
   const closeConfirm = useCallback(() => setToDelete(null), []);
 
-  // Error dilempar balik ke modal supaya ditampilkan di form
   const handleSave = async (payload) => {
     if (modal.transaction) {
       await updateTransaction(modal.transaction.id, payload);
     } else {
       await createTransaction(payload);
     }
-    await loadTransactions();
+    await loadDashboard();
     closeModal();
   };
 
@@ -57,7 +59,7 @@ export default function App() {
     setDeleting(true);
     try {
       await deleteTransaction(toDelete.id);
-      await loadTransactions();
+      await loadDashboard();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -102,7 +104,7 @@ export default function App() {
             <span>{error}</span>
             <button
               type="button"
-              onClick={loadTransactions}
+              onClick={loadDashboard}
               className="font-medium underline underline-offset-2"
             >
               Coba lagi
@@ -110,12 +112,38 @@ export default function App() {
           </div>
         )}
 
-        <TransactionTable
-          transactions={transactions}
-          loading={loading}
-          onEdit={openEdit}
-          onDelete={setToDelete}
-        />
+        {(loading || dashboard) && (
+          <>
+            <SummaryCards summary={dashboard?.summary} loading={loading} />
+
+            <IncomeExpenseChart
+              data={dashboard?.income_vs_expense}
+              loading={loading}
+            />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <CategoryDonutChart
+                title="Expense by Category"
+                subtitle="Semua pengeluaran"
+                data={dashboard?.expense_by_category}
+                loading={loading}
+              />
+              <CategoryDonutChart
+                title="Income by Type"
+                subtitle="Semua pemasukan"
+                data={dashboard?.income_by_category}
+                loading={loading}
+              />
+            </div>
+
+            <TransactionTable
+              transactions={dashboard?.recent_transactions ?? []}
+              loading={loading}
+              onEdit={openEdit}
+              onDelete={setToDelete}
+            />
+          </>
+        )}
       </main>
 
       {modal.open && (
