@@ -26,6 +26,16 @@ api.interceptors.response.use(
       message = data.message;
     }
 
+    if (!error.response) {
+      message = "Tidak dapat terhubung ke server. Pastikan backend berjalan.";
+    } else if (status === 429) {
+      message = "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.";
+    } else if (status === 422) {
+      message = data?.message || "Data yang dikirim tidak valid.";
+    } else if (data?.message) {
+      message = data.message;
+    }
+
     return Promise.reject({
       status,
       message,

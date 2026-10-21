@@ -12,6 +12,7 @@ import IncomeExpenseChart from "./components/IncomeExpenseChart";
 import SummaryCards from "./components/SummaryCards";
 import TransactionModal from "./components/TransactionModal";
 import TransactionTable from "./components/TransactionTable";
+import AiAnalysisPanel from "./components/AiAnalysisPanel";
 
 export default function App() {
   const [dashboard, setDashboard] = useState(null);
@@ -115,7 +116,7 @@ export default function App() {
         {(loading || dashboard) && (
           <>
             <SummaryCards summary={dashboard?.summary} loading={loading} />
-
+            <AiAnalysisPanel />
             <IncomeExpenseChart
               data={dashboard?.income_vs_expense}
               loading={loading}
