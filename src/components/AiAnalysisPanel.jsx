@@ -34,13 +34,15 @@ function BulletList({ icon: Icon, title, items, iconClass }) {
   );
 }
 
-export default function AiAnalysisPanel() {
+export default function AiAnalysisPanel({ dataVersion }) {
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [analyzedAt, setAnalyzedAt] = useState(null);
+  const [analyzedVersion, setAnalyzedVersion] = useState(null);
 
   const handleAnalyze = async () => {
+    const versionAtRequest = dataVersion;
     setStatus("loading");
     setError("");
 
@@ -48,6 +50,7 @@ export default function AiAnalysisPanel() {
       const data = await analyzeFinances();
       setResult(data);
       setAnalyzedAt(new Date());
+      setAnalyzedVersion(versionAtRequest);
       setStatus("success");
     } catch (err) {
       setError(err.message);
@@ -56,6 +59,7 @@ export default function AiAnalysisPanel() {
   };
 
   const loading = status === "loading";
+  const stale = status === "success" && analyzedVersion !== dataVersion;
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -117,6 +121,12 @@ export default function AiAnalysisPanel() {
 
       {status === "success" && result && (
         <div className="mt-5 space-y-4">
+          {stale && (
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
+              Data transaksi berubah sejak analisis ini dibuat. Klik tombol di
+              atas untuk memperbarui hasilnya.
+            </p>
+          )}
           <div className="rounded-xl bg-indigo-50/60 p-4">
             <h3 className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
               Ringkasan

@@ -79,8 +79,15 @@ export default function TransactionTable({
                   <td className="px-5 py-3.5">
                     <TypeBadge type={t.type} />
                   </td>
-                  <td className="whitespace-nowrap px-5 py-3.5 font-medium">
-                    {t.category}
+                  <td className="px-5 py-3.5">
+                    <p className="whitespace-nowrap font-medium">
+                      {t.category}
+                    </p>
+                    {t.note && (
+                      <p className="mt-0.5 max-w-[11rem] truncate text-xs text-slate-400 md:hidden">
+                        {t.note}
+                      </p>
+                    )}
                   </td>
                   <td
                     className={`whitespace-nowrap px-5 py-3.5 text-right font-medium tabular-nums ${

@@ -119,3 +119,8 @@ code {
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
 }
+
+:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}

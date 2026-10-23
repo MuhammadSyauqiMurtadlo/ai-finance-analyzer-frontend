@@ -169,6 +169,7 @@ export default function TransactionModal({ transaction, onSubmit, onClose }) {
                 <button
                   key={t}
                   type="button"
+                  autoFocus={!isEdit && t === "income"}
                   onClick={() => handleTypeChange(t)}
                   className={`rounded-md py-1.5 text-sm font-medium capitalize transition ${
                     form.type === t
@@ -193,6 +194,7 @@ export default function TransactionModal({ transaction, onSubmit, onClose }) {
               max="9999999999999.99"
               step="any"
               value={form.amount}
+              autoFocus={isEdit}
               onChange={(e) => setField("amount", e.target.value)}
               placeholder="50000"
               className={inputClass(errors.amount)}

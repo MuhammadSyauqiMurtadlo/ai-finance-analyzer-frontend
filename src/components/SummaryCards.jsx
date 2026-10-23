@@ -27,7 +27,7 @@ export default function SummaryCards({ summary, loading }) {
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-3">
       {items.map(({ label, value, icon: Icon, iconClass, valueClass }) => (
         <div
           key={label}
@@ -46,7 +46,7 @@ export default function SummaryCards({ summary, loading }) {
             <div className="mt-3 h-8 w-3/4 animate-pulse rounded-md bg-slate-100" />
           ) : (
             <p
-              className={`mt-3 break-words text-2xl font-semibold tabular-nums ${valueClass}`}
+              className={`mt-3 break-words text-xl font-semibold tabular-nums sm:text-2xl ${valueClass}`}
             >
               {formatRupiah(value)}
             </p>

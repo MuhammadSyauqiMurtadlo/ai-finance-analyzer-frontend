@@ -6,22 +6,31 @@ import {
   deleteTransaction,
   updateTransaction,
 } from "./api/transactions";
+import AiAnalysisPanel from "./components/AiAnalysisPanel";
 import CategoryDonutChart from "./components/CategoryDonutChart";
 import ConfirmDialog from "./components/ConfirmDialog";
 import IncomeExpenseChart from "./components/IncomeExpenseChart";
 import SummaryCards from "./components/SummaryCards";
+import Toast from "./components/Toast";
 import TransactionModal from "./components/TransactionModal";
 import TransactionTable from "./components/TransactionTable";
-import AiAnalysisPanel from "./components/AiAnalysisPanel";
 
 export default function App() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dataVersion, setDataVersion] = useState(0); // naik setiap data transaksi berubah
 
   const [modal, setModal] = useState({ open: false, transaction: null });
   const [toDelete, setToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = useCallback(
+    (type, message) => setToast({ type, message }),
+    [],
+  );
+  const closeToast = useCallback(() => setToast(null), []);
 
   const loadDashboard = useCallback(async () => {
     try {
@@ -47,22 +56,34 @@ export default function App() {
   const closeConfirm = useCallback(() => setToDelete(null), []);
 
   const handleSave = async (payload) => {
-    if (modal.transaction) {
+    const isEdit = Boolean(modal.transaction);
+
+    if (isEdit) {
       await updateTransaction(modal.transaction.id, payload);
     } else {
       await createTransaction(payload);
     }
+
+    setDataVersion((v) => v + 1);
     await loadDashboard();
     closeModal();
+    showToast(
+      "success",
+      isEdit
+        ? "Transaksi berhasil diperbarui."
+        : "Transaksi berhasil ditambahkan.",
+    );
   };
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
       await deleteTransaction(toDelete.id);
+      setDataVersion((v) => v + 1);
       await loadDashboard();
+      showToast("success", "Transaksi berhasil dihapus.");
     } catch (err) {
-      setError(err.message);
+      showToast("error", err.message);
     } finally {
       setDeleting(false);
       setToDelete(null);
@@ -99,14 +120,14 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
         {error && (
-          <div className="flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             <span>{error}</span>
             <button
               type="button"
               onClick={loadDashboard}
-              className="font-medium underline underline-offset-2"
+              className="shrink-0 font-medium underline underline-offset-2"
             >
               Coba lagi
             </button>
@@ -116,7 +137,9 @@ export default function App() {
         {(loading || dashboard) && (
           <>
             <SummaryCards summary={dashboard?.summary} loading={loading} />
-            <AiAnalysisPanel />
+
+            <AiAnalysisPanel dataVersion={dataVersion} />
+
             <IncomeExpenseChart
               data={dashboard?.income_vs_expense}
               loading={loading}
@@ -164,6 +187,8 @@ export default function App() {
           onCancel={closeConfirm}
         />
       )}
+
+      <Toast toast={toast} onClose={closeToast} />
     </div>
   );
 }

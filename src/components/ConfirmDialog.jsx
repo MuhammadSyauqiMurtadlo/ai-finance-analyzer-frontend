@@ -39,6 +39,7 @@ export default function ConfirmDialog({
         <div className="mt-6 flex justify-end gap-2">
           <button
             type="button"
+            autoFocus
             onClick={onCancel}
             disabled={loading}
             className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50"

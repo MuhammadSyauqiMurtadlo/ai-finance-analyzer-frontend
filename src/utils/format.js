@@ -5,12 +5,17 @@ export const formatRupiah = (value) =>
     maximumFractionDigits: 0,
   }).format(Number(value) || 0);
 
+const parseDate = (value) => {
+  const [year, month, day] = String(value).slice(0, 10).split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export const formatDate = (value) =>
   new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(new Date(value));
+  }).format(parseDate(value));
 
 export const formatCompact = (value) =>
   new Intl.NumberFormat("id-ID", {
